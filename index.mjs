@@ -1,6 +1,7 @@
 import {loadStdlib} from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 
+
 const stdlib = loadStdlib(process.env);
 const startingBalance = stdlib.parseCurrency(100);
 
@@ -13,31 +14,30 @@ const params = {
   title: 'Titolo di Prova',
   description: 'Descrizione di Prova',
   target: stdlib.parseCurrency(100),
-  deadline: 10,
+  deadline: 100,
 }
 
-let done = false;
 const funders = [];
 const startFunders = async () => {
   let donationAmt = stdlib.parseCurrency(10);
   
   const runFunder = async (who) => {
     const acc = await stdlib.newTestAccount(startingBalance);
-    // acc.setDebugLevel(who);
     funders.push([who, acc]);
     const ctc = acc.contract(backend, ctcOwner.getInfo());
     const getBal = async () => stdlib.formatCurrency(await stdlib.balanceOf(acc));
 
-    console.log(`${who} donating ${donationAmt} to campaign`);
+    console.log(`${who} donating ${stdlib.formatCurrency(donationAmt)} to campaign`);
     console.log(`${who} balance before is ${await getBal()}`);
 
     try{
       await ctc.apis.Funder.donateToCampaign(donationAmt);
-      console.log(`${who} donated ${donationAmt} to campaign`);
+      console.log(`${who} donated ${stdlib.formatCurrency(donationAmt)} to campaign`);
     } catch (e){
       console.log(e);
       console.log(`${who} failed to donate because campaign is over`);
     }
+    
     console.log(`${who} balance after is ${await getBal()}`);
   };
 
@@ -52,38 +52,50 @@ const startFunders = async () => {
     return outcome;
   };
 
-  const refund = async () => {
+  const refund = async (outcome) => {
     for (const [who, acc] of funders) {
       const ctcFunder = acc.contract(backend, ctcOwner.getInfo());
       await ctcFunder.apis.Funder.refund();
-      console.log(`${who}: ${stdlib.formatAddress(acc)} got their funds back`);
+      if (!outcome)
+        console.log(`${who}: ${stdlib.formatAddress(acc)} got their funds back`);
     }
-    console.log(`Refund done`);
+    if (!outcome)
+      console.log(`Refund done`);
   };
+
 
   await runFunder('Alice');
   await runFunder('Bob');
   await runFunder('Charlie');
   await runFunder('Dave');
+  await runFunder('Eve');
+  // await runFunder('Frank');
+  // await runFunder('Grace');
+  // await runFunder('Helen');
+  // await runFunder('Ivan');
+  // await runFunder('Judy');
+  // await runFunder('Karl');
+  // await runFunder('Linda');
+  
 
   console.log(`Waiting for the fund to reach the deadline`);
   await stdlib.wait(params.deadline);
   await timesup();
 
+  const campaignBlance = await ctcOwner.apis.Observer.getCampaignBalance();
+  console.log(`Campaign balance is ${stdlib.formatCurrency(campaignBlance)}`);
+
   const outcome = await getoutcome();
-  console.log(outcome);
 
-  if(!outcome){
-    await refund();
+  await refund(outcome);
+
+  for ( const [who, acc] of [['Owner', accOwner], ...funders]) {
+    console.log(`${who}: ${stdlib.formatAddress(acc)} has`,
+    stdlib.formatCurrency(await stdlib.balanceOf(acc)));
   }
 
-  while (!done) {
-    await stdlib.wait(1);
-  }
+
 };
-
-
-
 
 console.log('Launching...');
 const ctcOwner = accOwner.contract(backend);
@@ -93,7 +105,9 @@ console.log('Starting backends...');
 await Promise.all([
     backend.Owner(ctcOwner, {
       getCampaign: () => {
-        console.log('Owner sets params of campaign: ', params);
+        const params2 = {...params};
+        params2.target = parseInt(stdlib.formatCurrency(stdlib.bigNumberToNumber(params.target)));
+        console.log('Owner sets params of campaign: ', params2);
         return params;
       },
       campaignReady: () => {
@@ -101,12 +115,3 @@ await Promise.all([
       },
     }),
 ]);
-
-
-for ( const [who, acc] of funders) {
-  console.log(`${who}: ${stdlib.formatAddress(acc)} has`,
-  stdlib.formatCurrency(await stdlib.balanceOf(acc)));
-}
-
-
-done = true;

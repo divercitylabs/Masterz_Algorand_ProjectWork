@@ -20,6 +20,7 @@ export const main = Reach.App(() => {
   const Observer = API('Observer', {
     timesUp: Fun([], Bool),
     getOutcome: Fun([], Bool),
+    getCampaignBalance: Fun([], UInt),
   });
 
   init();
@@ -59,8 +60,7 @@ export const main = Reach.App(() => {
       };
     };
   })
-  .invariant(balance() >= campaignBalance)
-  .invariant(fundersSet.Map.size() == numFunders)
+  .invariant(balance() >= campaignBalance && fundersSet.Map.size() == numFunders)
   .while(keepGoing)
   .api(Funder.donateToCampaign,
     (payment) => { const _ = checkDonateToCampaign(this, payment); },
@@ -83,17 +83,12 @@ export const main = Reach.App(() => {
   const outcome = campaignBalance >= target;
   commit();
 
+  const [ [], z ] = call(Observer.getCampaignBalance);
+  z(balance());
+  commit();
+
   const [ [], u ] = call(Observer.getOutcome);
   u(outcome);
-
-  if(outcome){
-    transfer(balance()).to(Owner);
-    commit();
-    exit();
-  }
-
-
-  assert(outcome == false);
 
   const [
     fundsRemaining,
@@ -110,8 +105,9 @@ export const main = Reach.App(() => {
       check(amt <= balance(), 'Contract balance is too low to refund you');
 
       return () => {
-        transfer(amt).to(who);
-        
+        if(!outcome){
+          transfer(amt).to(who);
+        }
         funders[who] = 0;
         delete funders[who];
         fundersSet.remove(who);
