@@ -114,6 +114,11 @@ and run it
 
 All rights reserved.
 
+<p align="justify"> 
+Upon viewing this code, the user acknowledges that the software is the property of DivercityLabs and that unauthorized use of the software is prohibited. Any violation of the copyright or other intellectual property rights will be prosecuted under the law.
+By way of example but not limited to, copyright law protects original creative works, such as software, video games, books, music, images, and videos. Copyright law varies by country. Copyright owners generally have the right to control certain unauthorized uses of their work (including the right to sue people who use their copyrighted work without permission). As a result, certain images and other copyrighted content may require permissions or licenses, especially if you use the work in a commercial setting. For example, even if you have permission to use an image, you may need additional permission to use what is in the image (e.g., a photo of a sculpture, a person, or a logo) because someone else's copyright, trademark, or publicity rights might also be involved. You are responsible for obtaining all of the permissions and licenses necessary to use the content in your specific context.
+</p>
+
 ## Contact
 
 If you have any questions, comments, or concerns about this project, please feel free to contact us at:
@@ -126,7 +131,14 @@ We'll do our best to respond as soon as possible.
 
 This project would not have been possible without the following technologies:
 
+- [Algorand](https://www.algorand.com/)
 - [Docker](https://www.docker.com/)
 - [Reach](https://reach.sh)
 
-We'd like to thank the developers of Docker and Reach for creating and maintaining these fantastic tools, which made our work on this project much easier and more efficient.
+<p align="justify"> 
+We'd like to thank Algorand for creating the Algorand blockchain, which has revolutionized the way we think about decentralized and secure transactions.
+We'd like to thank also the developers of Docker and Reach for creating and maintaining these fantastic tools, which made our work on this project much easier and more efficient.
+</p>
+<p align="justify"> 
+We want to express our sincere appreciation to <a href='https://www.masterzblockchain.com/'>Masterz<a/> for their role in advancing our knowledge of blockchain technology. Thanks to Masterz, we had the privilege of meeting each other and creating this team.
+</p>
